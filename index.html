@@ -1,0 +1,2260 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIGURE QUEST</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#050807;
+  --panel:#0b1210;
+  --panel2:#101a16;
+  --green:#00ff8c;
+  --green2:#00c96d;
+  --text:#f3f8f5;
+  --muted:#82918a;
+  --red:#ff5577;
+  --yellow:#ffd166;
+  --border:rgba(0,255,140,.18);
+}
+
+body{
+  min-height:100vh;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+
+button,textarea{font:inherit}
+
+button{cursor:pointer}
+
+.app{
+  min-height:100vh;
+  background:
+    linear-gradient(rgba(0,255,140,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,255,140,.025) 1px,transparent 1px);
+  background-size:50px 50px;
+}
+
+.header{
+  position:fixed;
+  z-index:20;
+  top:0;
+  width:100%;
+  height:68px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 28px;
+  background:rgba(5,8,7,.9);
+  border-bottom:1px solid rgba(0,255,140,.12);
+  backdrop-filter:blur(15px);
+}
+
+.logo{
+  border:0;
+  background:none;
+  color:white;
+  font-weight:900;
+  letter-spacing:3px;
+  font-size:15px;
+}
+
+.logo span{color:var(--green)}
+
+.player{
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+
+.level{
+  color:var(--green);
+  font-weight:bold;
+}
+
+.xp{
+  width:140px;
+}
+
+.xp-label{
+  color:var(--muted);
+  font-size:10px;
+  margin-bottom:5px;
+}
+
+.xp-bar{
+  height:4px;
+  background:#1a2921;
+}
+
+.xp-fill{
+  height:100%;
+  width:0;
+  background:var(--green);
+  box-shadow:0 0 10px var(--green);
+  transition:.4s;
+}
+
+.screen{
+  display:none;
+  min-height:100vh;
+  padding:110px 20px 60px;
+}
+
+.screen.active{display:flex}
+
+/* HOME */
+
+#home{
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  text-align:center;
+}
+
+.eyebrow{
+  color:var(--green);
+  font-size:10px;
+  letter-spacing:4px;
+}
+
+.hero h1{
+  margin-top:22px;
+  font-size:clamp(45px,10vw,100px);
+  letter-spacing:7px;
+  line-height:1;
+}
+
+.hero h1 span{color:var(--green)}
+
+.hero p.description{
+  margin-top:30px;
+  color:var(--muted);
+  line-height:2;
+  font-size:14px;
+}
+
+.btn{
+  padding:15px 24px;
+  border:1px solid var(--green);
+  background:transparent;
+  color:var(--green);
+  transition:.25s;
+}
+
+.btn:hover{
+  background:var(--green);
+  color:var(--bg);
+  box-shadow:0 0 25px rgba(0,255,140,.3);
+}
+
+.start-btn{
+  margin-top:35px;
+  letter-spacing:2px;
+}
+
+.stats{
+  display:flex;
+  gap:15px;
+  margin-top:70px;
+}
+
+.stat{
+  width:220px;
+  padding:18px;
+  text-align:left;
+  background:var(--panel);
+  border:1px solid var(--border);
+}
+
+.stat-title{
+  color:var(--muted);
+  font-size:11px;
+  letter-spacing:2px;
+}
+
+.stat-percent{
+  float:right;
+  color:var(--green);
+  font-size:12px;
+}
+
+.stat-bar{
+  height:4px;
+  margin-top:15px;
+  background:#1a2921;
+}
+
+.stat-fill{
+  height:100%;
+  width:0;
+  background:var(--green);
+  transition:.4s;
+}
+
+/* MAP */
+
+#map{
+  flex-direction:column;
+  align-items:center;
+}
+
+.container{
+  width:100%;
+  max-width:900px;
+}
+
+.back{
+  margin-bottom:25px;
+  border:0;
+  background:none;
+  color:var(--green);
+  font-size:11px;
+}
+
+.page-title{
+  font-size:42px;
+  letter-spacing:4px;
+  margin-top:10px;
+}
+
+.page-description{
+  margin-top:10px;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.world{
+  margin-top:35px;
+  padding:22px;
+  background:var(--panel);
+  border:1px solid var(--border);
+}
+
+.world.locked{
+  opacity:.45;
+}
+
+.world-header{
+  display:flex;
+  align-items:center;
+  gap:15px;
+  margin-bottom:20px;
+}
+
+.world-icon{
+  font-size:32px;
+}
+
+.world-number{
+  color:var(--green);
+  font-size:10px;
+  letter-spacing:2px;
+}
+
+.world-title{
+  margin-top:5px;
+  font-size:20px;
+}
+
+.quest-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.quest{
+  display:flex;
+  align-items:center;
+  gap:15px;
+  width:100%;
+  padding:16px;
+  background:var(--panel2);
+  border:1px solid rgba(255,255,255,.06);
+  color:white;
+  text-align:left;
+  transition:.2s;
+}
+
+.quest:hover:not(:disabled){
+  border-color:var(--green);
+  transform:translateX(4px);
+}
+
+.quest:disabled{
+  cursor:not-allowed;
+  opacity:.45;
+}
+
+.quest-number{
+  color:var(--green);
+  font-weight:bold;
+  width:30px;
+}
+
+.quest-info{
+  flex:1;
+}
+
+.quest-info strong{
+  display:block;
+  font-size:13px;
+}
+
+.quest-info small{
+  display:block;
+  margin-top:4px;
+  color:var(--muted);
+  font-size:10px;
+}
+
+.quest-status{
+  color:var(--green);
+  font-size:10px;
+}
+
+/* LESSON */
+
+#lesson{
+  justify-content:center;
+}
+
+.lesson{
+  width:100%;
+  max-width:900px;
+}
+
+.lesson-title{
+  margin-top:10px;
+  font-size:38px;
+}
+
+.lesson-subtitle{
+  margin-top:8px;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.steps{
+  display:flex;
+  gap:5px;
+  margin-top:30px;
+  border-bottom:1px solid rgba(255,255,255,.1);
+}
+
+.step{
+  padding:13px 18px;
+  border:0;
+  border-bottom:2px solid transparent;
+  background:none;
+  color:var(--muted);
+  font-size:11px;
+}
+
+.step.active{
+  color:var(--green);
+  border-bottom-color:var(--green);
+}
+
+.lesson-panel{
+  display:none;
+  margin-top:25px;
+}
+
+.lesson-panel.active{display:block}
+
+.card{
+  padding:25px;
+  background:var(--panel);
+  border:1px solid var(--border);
+}
+
+.card h3{
+  margin-top:12px;
+  font-size:24px;
+}
+
+.card p{
+  margin-top:17px;
+  color:#b6c2bc;
+  line-height:2;
+  font-size:14px;
+}
+
+.info-box{
+  margin-top:22px;
+  padding:18px;
+  background:var(--panel2);
+  border-left:3px solid var(--green);
+  color:#c5d2cb;
+  line-height:1.9;
+  font-size:13px;
+}
+
+.code-box{
+  margin-top:18px;
+  overflow:hidden;
+  background:#020403;
+}
+
+.code-title{
+  padding:11px 15px;
+  color:var(--green);
+  font-size:9px;
+  letter-spacing:2px;
+}
+
+pre{
+  padding:18px;
+  overflow:auto;
+}
+
+code{
+  color:#d9fbe9;
+  font-family:monospace;
+  font-size:13px;
+  line-height:1.8;
+  white-space:pre-wrap;
+}
+
+.next{
+  margin-top:20px;
+}
+
+/* PRACTICE */
+
+.editor-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px;
+  margin-top:20px;
+}
+
+.editor-panel{
+  overflow:hidden;
+  background:#020403;
+}
+
+textarea{
+  display:block;
+  width:100%;
+  height:280px;
+  padding:18px;
+  resize:vertical;
+  border:0;
+  outline:0;
+  background:#020403;
+  color:#d9fbe9;
+  font-family:monospace;
+  font-size:13px;
+  line-height:1.7;
+}
+
+.preview{
+  min-height:280px;
+  padding:20px;
+  background:white;
+  color:#111;
+  overflow:auto;
+}
+
+.task{
+  margin-top:18px;
+  padding:18px;
+  background:var(--panel2);
+  border:1px solid var(--border);
+}
+
+.task-title{
+  color:var(--green);
+  font-size:11px;
+  letter-spacing:2px;
+}
+
+.task p{
+  margin-top:10px;
+  color:#c4d0ca;
+  line-height:1.8;
+  font-size:13px;
+}
+
+.check-result{
+  min-height:25px;
+  margin-top:15px;
+  font-size:13px;
+}
+
+.success{color:var(--green)}
+.error{color:var(--red)}
+
+/* TEST */
+
+.answers{
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+  margin-top:20px;
+}
+
+.answer{
+  padding:17px;
+  border:1px solid rgba(255,255,255,.1);
+  background:var(--panel);
+  color:white;
+  text-align:left;
+  transition:.2s;
+}
+
+.answer:hover:not(:disabled){
+  border-color:var(--green);
+}
+
+.answer.correct{
+  border-color:var(--green);
+  background:rgba(0,255,140,.08);
+}
+
+.answer.wrong{
+  border-color:var(--red);
+  background:rgba(255,85,119,.08);
+}
+
+.test-result{
+  min-height:30px;
+  margin-top:18px;
+  line-height:1.7;
+  font-size:13px;
+}
+
+/* MODAL */
+
+.modal{
+  position:fixed;
+  inset:0;
+  z-index:100;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(0,0,0,.82);
+}
+
+.modal.active{display:flex}
+
+.modal-box{
+  width:100%;
+  max-width:480px;
+  padding:40px 25px;
+  background:var(--panel);
+  border:1px solid var(--green);
+  text-align:center;
+}
+
+.modal-icon{
+  color:var(--green);
+  font-size:45px;
+}
+
+.modal-box h2{
+  margin-top:15px;
+  font-size:28px;
+}
+
+.modal-box p{
+  margin-top:15px;
+  color:var(--muted);
+  line-height:1.8;
+  font-size:13px;
+}
+
+.reward{
+  margin:25px 0;
+  color:var(--green);
+  font-size:25px;
+  font-weight:bold;
+}
+
+/* MOBILE */
+
+@media(max-width:700px){
+
+  .header{
+    height:60px;
+    padding:0 16px;
+  }
+
+  .logo{
+    font-size:12px;
+  }
+
+  .xp{
+    width:90px;
+  }
+
+  .screen{
+    padding-top:90px;
+  }
+
+  .hero h1{
+    font-size:43px;
+    letter-spacing:3px;
+  }
+
+  .stats{
+    flex-direction:column;
+    width:100%;
+    max-width:300px;
+    margin-top:50px;
+  }
+
+  .stat{
+    width:100%;
+  }
+
+  .page-title{
+    font-size:31px;
+  }
+
+  .lesson-title{
+    font-size:28px;
+  }
+
+  .editor-grid{
+    grid-template-columns:1fr;
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<header class="header">
+
+  <button class="logo" onclick="goHome()">
+    SIGURE <span>QUEST</span>
+  </button>
+
+  <div class="player">
+
+    <div class="level">
+      LV <span id="level">1</span>
+    </div>
+
+    <div class="xp">
+      <div class="xp-label" id="xpText">0 / 100 XP</div>
+      <div class="xp-bar">
+        <div class="xp-fill" id="xpFill"></div>
+      </div>
+    </div>
+
+  </div>
+
+</header>
+
+
+<!-- HOME -->
+
+<main id="home" class="screen active">
+
+  <section class="hero">
+
+    <div class="eyebrow">
+      WEB DEVELOPMENT QUEST
+    </div>
+
+    <h1>
+      SIGURE <span>QUEST</span>
+    </h1>
+
+    <p class="description">
+      学んで、実践して、試して、作る。<br>
+      冒険しながらHTMLとCSSを身につけよう。
+    </p>
+
+    <button class="btn start-btn" onclick="showMap()">
+      QUEST START　→
+    </button>
+
+  </section>
+
+  <section class="stats">
+
+    <div class="stat">
+      <span class="stat-title">HTML</span>
+      <span class="stat-percent" id="htmlPercent">0%</span>
+      <div class="stat-bar">
+        <div class="stat-fill" id="htmlProgress"></div>
+      </div>
+    </div>
+
+    <div class="stat">
+      <span class="stat-title">CSS</span>
+      <span class="stat-percent" id="cssPercent">0%</span>
+      <div class="stat-bar">
+        <div class="stat-fill" id="cssProgress"></div>
+      </div>
+    </div>
+
+  </section>
+
+</main>
+
+
+<!-- MAP -->
+
+<main id="map" class="screen">
+
+  <div class="container">
+
+    <button class="back" onclick="goHome()">
+      ← HOME
+    </button>
+
+    <div class="eyebrow">
+      YOUR ADVENTURE
+    </div>
+
+    <h1 class="page-title">
+      QUEST MAP
+    </h1>
+
+    <p class="page-description">
+      クエストをクリアしてWebの知識を身につけよう。
+    </p>
+
+
+    <section class="world">
+
+      <div class="world-header">
+        <div class="world-icon">🌱</div>
+
+        <div>
+          <div class="world-number">WORLD 01</div>
+          <h2 class="world-title">HTML BEGINNER</h2>
+        </div>
+      </div>
+
+      <div id="htmlQuests" class="quest-list"></div>
+
+    </section>
+
+
+    <section class="world">
+
+      <div class="world-header">
+        <div class="world-icon">🎨</div>
+
+        <div>
+          <div class="world-number">WORLD 02</div>
+          <h2 class="world-title">CSS BEGINNER</h2>
+        </div>
+      </div>
+
+      <div id="cssQuests" class="quest-list"></div>
+
+    </section>
+
+
+    <section class="world">
+
+      <div class="world-header">
+        <div class="world-icon">🧭</div>
+
+        <div>
+          <div class="world-number">WORLD 03</div>
+          <h2 class="world-title">CSS LAYOUT</h2>
+        </div>
+      </div>
+
+      <div id="layoutQuests" class="quest-list"></div>
+
+    </section>
+
+
+    <section class="world">
+
+      <div class="world-header">
+        <div class="world-icon">⚔️</div>
+
+        <div>
+          <div class="world-number">WORLD 04</div>
+          <h2 class="world-title">PRACTICAL PROJECT</h2>
+        </div>
+      </div>
+
+      <div id="projectQuests" class="quest-list"></div>
+
+    </section>
+
+  </div>
+
+</main>
+
+
+<!-- LESSON -->
+
+<main id="lesson" class="screen">
+
+  <section class="lesson">
+
+    <button class="back" onclick="showMap()">
+      ← QUEST MAP
+    </button>
+
+    <div class="eyebrow" id="lessonWorld">
+      WORLD 01 // HTML BEGINNER
+    </div>
+
+    <h1 class="lesson-title" id="lessonTitle">
+      HTMLとは？
+    </h1>
+
+    <p class="lesson-subtitle" id="lessonSubtitle">
+      Webの世界への第一歩
+    </p>
+
+
+    <div class="steps">
+
+      <button class="step active" onclick="showStep('learn')">
+        01 学ぶ
+      </button>
+
+      <button class="step" onclick="showStep('practice')">
+        02 実践
+      </button>
+
+      <button class="step" onclick="showStep('test')">
+        03 テスト
+      </button>
+
+    </div>
+
+
+    <!-- LEARN -->
+
+    <section id="learnPanel" class="lesson-panel active">
+
+      <div class="card">
+
+        <div class="eyebrow">LEARN</div>
+
+        <h3 id="learnTitle">
+          HTMLとは？
+        </h3>
+
+        <p id="learnText"></p>
+
+        <div class="info-box" id="learnInfo"></div>
+
+      </div>
+
+      <div class="code-box">
+
+        <div class="code-title">
+          CODE EXAMPLE
+        </div>
+
+        <pre><code id="exampleCode"></code></pre>
+
+      </div>
+
+      <button class="btn next" onclick="showStep('practice')">
+        実践へ進む →
+      </button>
+
+    </section>
+
+
+    <!-- PRACTICE -->
+
+    <section id="practicePanel" class="lesson-panel">
+
+      <div class="card">
+
+        <div class="eyebrow">PRACTICE</div>
+
+        <h3>
+          自分でコードを書いてみよう
+        </h3>
+
+        <p id="practiceText"></p>
+
+      </div>
+
+
+      <div class="editor-grid">
+
+        <div class="editor-panel">
+
+          <div class="code-title">
+            CODE EDITOR
+          </div>
+
+          <textarea id="editor" oninput="updatePreview()"></textarea>
+
+        </div>
+
+
+        <div class="editor-panel">
+
+          <div class="code-title">
+            LIVE PREVIEW
+          </div>
+
+          <div id="preview" class="preview"></div>
+
+        </div>
+
+      </div>
+
+
+      <div class="task">
+
+        <div class="task-title">
+          QUEST OBJECTIVE
+        </div>
+
+        <p id="taskText"></p>
+
+        <button class="btn next" onclick="checkPractice()">
+          コードをチェック
+        </button>
+
+        <div id="checkResult" class="check-result"></div>
+
+      </div>
+
+
+      <button class="btn next" onclick="showStep('test')">
+        テストへ進む →
+      </button>
+
+    </section>
+
+
+    <!-- TEST -->
+
+    <section id="testPanel" class="lesson-panel">
+
+      <div class="card">
+
+        <div class="eyebrow">TEST</div>
+
+        <h3 id="question"></h3>
+
+      </div>
+
+      <div id="answers" class="answers"></div>
+
+      <div id="testResult" class="test-result"></div>
+
+      <button
+        id="completeBtn"
+        class="btn next"
+        style="display:none"
+        onclick="completeCurrentQuest()"
+      >
+        QUEST CLEAR ✦
+      </button>
+
+    </section>
+
+  </section>
+
+</main>
+
+
+<!-- COMPLETE MODAL -->
+
+<div id="modal" class="modal">
+
+  <div class="modal-box">
+
+    <div class="modal-icon">✦</div>
+
+    <div class="eyebrow">QUEST COMPLETE</div>
+
+    <h2>クエストクリア！</h2>
+
+    <p id="completeMessage">
+      新しい知識を獲得しました。
+    </p>
+
+    <div class="reward">
+      +100 XP
+    </div>
+
+    <button class="btn" onclick="closeModal()">
+      QUEST MAPへ戻る
+    </button>
+
+  </div>
+
+</div>
+
+
+<script>
+
+const quests = [
+
+/* =========================
+   HTML WORLD
+========================= */
+
+{
+ id:1,
+ world:"WORLD 01 // HTML BEGINNER",
+ title:"HTMLとは？",
+ subtitle:"Webの世界への第一歩",
+ learnTitle:"HTMLとは？",
+ learnText:"HTMLはWebページの構造を作るためのマークアップ言語です。見出し、文章、画像、リンクなど、ページに何を置くのかを決めます。",
+ learnInfo:"HTMLは家に例えると「骨組み」です。CSSが見た目、JavaScriptが動きを担当します。",
+ example:"<h1>SIGURE QUEST</h1>\n<p>Webの冒険を始めよう！</p>",
+ practice:"h1タグとpタグを使って、見出しと文章を作ってみよう。",
+ task:"<h1>タグと<p>タグを両方使ってください。",
+ required:["<h1>","</h1>","<p>","</p>"],
+ question:"HTMLの主な役割はどれ？",
+ answers:["Webページの構造を作る","Webページの色だけを変える","画像を編集する","動画を撮影する"],
+ correct:0
+},
+
+{
+ id:2,
+ world:"WORLD 01 // HTML BEGINNER",
+ title:"見出しを作る",
+ subtitle:"h1からh6までの使い分け",
+ learnTitle:"見出しタグ",
+ learnText:"HTMLでは<h1>から<h6>までの見出しタグを使えます。数字が小さいほど大きな階層の見出しです。",
+ learnInfo:"通常、ページの大見出しにはh1を使い、その下の章にh2、さらに細かい項目にh3を使います。",
+ example:"<h1>ページタイトル</h1>\n<h2>大きな章</h2>\n<h3>小さな章</h3>",
+ practice:"h1、h2、h3を使って見出しを3つ作ろう。",
+ task:"h1、h2、h3をそれぞれ1つ以上使ってください。",
+ required:["<h1>","<h2>","<h3>"],
+ question:"最も大きな階層の見出しはどれ？",
+ answers:["h6","h3","h1","p"],
+ correct:2
+},
+
+{
+ id:3,
+ world:"WORLD 01 // HTML BEGINNER",
+ title:"文章を書く",
+ subtitle:"p・br・strong・em",
+ learnTitle:"文章のHTML",
+ learnText:"文章には<p>タグを使います。文章を途中で改行したいときは<br>、重要な文字には<strong>や<em>を使えます。",
+ learnInfo:"HTMLでは見た目だけでなく、文章の意味をタグで表すことが大切です。",
+ example:"<p>これは文章です。</p>\n<p><strong>重要な文章</strong></p>",
+ practice:"pタグを使って文章を2つ作り、strongも使おう。",
+ task:"pタグを2つ以上、strongタグを1つ以上使ってください。",
+ required:["<p>","</p>","<strong>","</strong>"],
+ question:"文章の段落を作るタグはどれ？",
+ answers:["<p>","<img>","<a>","<table>"],
+ correct:0
+},
+
+{
+ id:4,
+ world:"WORLD 01 // HTML BEGINNER",
+ title:"リンクを作る",
+ subtitle:"ページ同士をつなげよう",
+ learnTitle:"aタグ",
+ learnText:"リンクを作るには<a>タグを使います。href属性にリンク先を指定します。",
+ learnInfo:"タグが要素の種類を表し、属性がその要素に追加情報を与えます。",
+ example:'<a href="https://example.com">サイトを見る</a>',
+ practice:"aタグとhref属性を使ってリンクを作ろう。",
+ task:"href属性を持つaタグを作ってください。",
+ required:["<a","href","</a>"],
+ question:"リンク先を指定する属性は？",
+ answers:["src","href","alt","class"],
+ correct:1
+},
+
+{
+ id:5,
+ world:"WORLD 01 // HTML BEGINNER",
+ title:"画像を表示する",
+ subtitle:"imgタグとalt属性",
+ learnTitle:"画像のHTML",
+ learnText:"画像を表示するには<img>タグを使います。src属性で画像の場所を指定し、alt属性で画像の説明を設定します。",
+ learnInfo:"alt属性は画像が表示できない場合や、アクセシビリティのために重要です。",
+ example:'<img src="image.jpg" alt="風景の写真">',
+ practice:"imgタグにsrcとaltを設定してみよう。",
+ task:"imgタグ、src属性、alt属性を使ってください。",
+ required:["<img","src","alt"],
+ question:"画像の場所を指定する属性は？",
+ answers:["href","src","alt","title"],
+ correct:1
+},
+
+{
+ id:6,
+ world:"WORLD 01 // HTML BEGINNER",
+ title:"リストを作る",
+ subtitle:"ul・ol・li",
+ learnTitle:"リスト",
+ learnText:"箇条書きには<ul>、順番付きリストには<ol>を使います。項目は<li>で作ります。",
+ learnInfo:"ulは順番を重視しないリスト、olは順番に意味があるリストです。",
+ example:"<ul>\n  <li>HTML</li>\n  <li>CSS</li>\n</ul>",
+ practice:"ulとliを使って好きなものを3つ並べよう。",
+ task:"ulとliを使い、liを3つ以上作ってください。",
+ required:["<ul>","<li>"],
+ question:"リストの1項目を表すタグは？",
+ answers:["<item>","<li>","<list>","<ul>"],
+ correct:1
+},
+
+{
+ id:7,
+ world:"WORLD 01 // HTML BEGINNER",
+ title:"ページを整理する",
+ subtitle:"header・main・section・footer",
+ learnTitle:"意味のある構造",
+ learnText:"HTMLにはページの役割を表すセマンティックなタグがあります。header、main、section、footerなどです。",
+ learnInfo:"divだけで作ることもできますが、意味のあるタグを使うと人にも検索エンジンにも構造が伝わりやすくなります。",
+ example:"<header>ヘッダー</header>\n<main>\n  <section>本文</section>\n</main>\n<footer>フッター</footer>",
+ practice:"header、main、section、footerでページ構造を作ろう。",
+ task:"4つのセマンティックタグをすべて使ってください。",
+ required:["<header>","<main>","<section>","<footer>"],
+ question:"ページの主要な内容を表すタグは？",
+ answers:["<main>","<head>","<meta>","<title>"],
+ correct:0
+},
+
+{
+ id:8,
+ world:"WORLD 01 // HTML BEGINNER",
+ title:"表を作る",
+ subtitle:"table・tr・th・td",
+ learnTitle:"HTMLの表",
+ learnText:"表は<table>で作ります。行は<tr>、見出しセルは<th>、通常のセルは<td>を使います。",
+ learnInfo:"表はデータを表形式で整理するために使います。レイアウト目的で使うのは避けましょう。",
+ example:"<table>\n  <tr>\n    <th>名前</th>\n    <th>レベル</th>\n  </tr>\n</table>",
+ practice:"名前とレベルの表を作ろう。",
+ task:"table、tr、th、tdを使ってください。",
+ required:["<table>","<tr>","<th>","<td>"],
+ question:"表の行を表すタグは？",
+ answers:["<row>","<tr>","<td>","<line>"],
+ correct:1
+},
+
+{
+ id:9,
+ world:"WORLD 01 // HTML BEGINNER",
+ title:"入力フォーム",
+ subtitle:"form・input・label・button",
+ learnTitle:"ユーザーから入力を受け取る",
+ learnText:"フォームはユーザーから情報を受け取るために使います。input、label、buttonなどを組み合わせます。",
+ learnInfo:"inputにはtype属性があり、text、email、passwordなど入力内容に応じて種類を変えられます。",
+ example:'<label>名前</label>\n<input type="text">\n<button>送信</button>',
+ practice:"名前入力欄と送信ボタンを作ろう。",
+ task:"inputとbuttonを使ってください。",
+ required:["<input","<button>","</button>"],
+ question:"文字入力欄を作る要素は？",
+ answers:["input","text-box","write","field"],
+ correct:0
+},
+
+{
+ id:10,
+ world:"WORLD 01 // HTML BEGINNER",
+ title:"HTML BOSS",
+ subtitle:"HTML総合クエスト",
+ learnTitle:"HTMLを組み合わせる",
+ learnText:"ここまで学んだHTMLを組み合わせて、簡単なプロフィールページを作ります。",
+ learnInfo:"HTMLでは要素を組み合わせてページ全体の構造を作ります。",
+ example:"<h1>プロフィール</h1>\n<p>名前：SIGURE</p>\n<ul>\n  <li>HTML</li>\n  <li>CSS</li>\n</ul>",
+ practice:"h1、p、ul、liを使ってプロフィールを作ろう。",
+ task:"h1、p、ul、liをすべて使ってください。",
+ required:["<h1>","<p>","<ul>","<li>"],
+ question:"HTMLでWebページの何を作る？",
+ answers:["構造","色だけ","音声だけ","画像ファイル"],
+ correct:0
+},
+
+/* =========================
+   CSS WORLD
+========================= */
+
+{
+ id:11,
+ world:"WORLD 02 // CSS BEGINNER",
+ title:"CSSとは？",
+ subtitle:"Webページをデザインする",
+ learnTitle:"CSSとは？",
+ learnText:"CSSはHTMLで作った構造に色、サイズ、余白、レイアウトなどのデザインを加える言語です。",
+ learnInfo:"HTMLが内容、CSSが見た目です。同じHTMLでもCSSを変えるだけで全く違うデザインになります。",
+ example:"h1 {\n  color: green;\n}",
+ practice:"h1の文字色を変更しよう。",
+ task:"colorプロパティを使ってください。",
+ required:["color"],
+ question:"CSSの主な役割は？",
+ answers:["見た目をデザインする","HTML構造を作る","データベースを作る","画像を撮影する"],
+ correct:0
+},
+
+{
+ id:12,
+ world:"WORLD 02 // CSS BEGINNER",
+ title:"セレクタ",
+ subtitle:"どのHTMLをデザインするか",
+ learnTitle:"CSSセレクタ",
+ learnText:"CSSでは、どのHTML要素にデザインを適用するかをセレクタで指定します。",
+ learnInfo:"h1ならh1要素、.cardならclassがcardの要素を選択できます。",
+ example:"p {\n  color: blue;\n}\n\n.card {\n  padding: 20px;\n}",
+ practice:"p要素を選択して文字色を変更しよう。",
+ task:"pセレクタとcolorプロパティを使ってください。",
+ required:["p","color"],
+ question:".cardのような書き方は何？",
+ answers:["classセレクタ","画像","HTMLタグ","属性値"],
+ correct:0
+},
+
+{
+ id:13,
+ world:"WORLD 02 // CSS BEGINNER",
+ title:"文字をデザインする",
+ subtitle:"font-size・font-weight",
+ learnTitle:"文字のデザイン",
+ learnText:"font-sizeで文字サイズ、font-weightで太さ、font-familyでフォントを指定できます。",
+ learnInfo:"CSSのプロパティは役割ごとに分かれています。まずはよく使うプロパティから覚えましょう。",
+ example:"h1 {\n  font-size: 40px;\n  font-weight: bold;\n}",
+ practice:"h1を40pxにして太字にしよう。",
+ task:"font-sizeとfont-weightを使ってください。",
+ required:["font-size","font-weight"],
+ question:"文字の大きさを変えるプロパティは？",
+ answers:["font-size","text-size","size","letter"],
+ correct:0
+},
+
+{
+ id:14,
+ world:"WORLD 02 // CSS BEGINNER",
+ title:"色を変える",
+ subtitle:"colorとカラーコード",
+ learnTitle:"色の指定",
+ learnText:"colorは文字色、background-colorは背景色を指定します。色は名前やHEXカラーコードなどで指定できます。",
+ learnInfo:"#00ff8cのようなHEXカラーコードを使うと細かい色を指定できます。",
+ example:"body {\n  background-color: #050807;\n  color: white;\n}",
+ practice:"背景色と文字色を指定しよう。",
+ task:"colorとbackground-colorを使ってください。",
+ required:["color","background-color"],
+ question:"背景色を指定するプロパティは？",
+ answers:["background-color","back-color","bg","background-text"],
+ correct:0
+},
+
+{
+ id:15,
+ world:"WORLD 02 // CSS BEGINNER",
+ title:"背景をデザインする",
+ subtitle:"background",
+ learnTitle:"背景",
+ learnText:"background-colorで単色、background-imageで画像、backgroundで複数の背景設定をまとめて指定できます。",
+ learnInfo:"CSSは複数のプロパティを組み合わせることで、より複雑なデザインができます。",
+ example:"body {\n  background: #101010;\n}",
+ practice:"要素に背景色を設定しよう。",
+ task:"backgroundまたはbackground-colorを使ってください。",
+ required:["background"],
+ question:"背景に関するプロパティは？",
+ answers:["background","back-color-only","behind","wall"],
+ correct:0
+},
+
+{
+ id:16,
+ world:"WORLD 02 // CSS BEGINNER",
+ title:"枠線と角丸",
+ subtitle:"border・border-radius",
+ learnTitle:"カードを作る",
+ learnText:"borderで枠線、border-radiusで角丸を作れます。カードUIでは非常によく使われます。",
+ learnInfo:"border-radius:50%にすると、正方形を円に近い形にできます。",
+ example:".card {\n  border: 1px solid green;\n  border-radius: 12px;\n}",
+ practice:"カードに枠線と角丸を追加しよう。",
+ task:"borderとborder-radiusを使ってください。",
+ required:["border","border-radius"],
+ question:"角を丸くするプロパティは？",
+ answers:["border-radius","corner","radius-border","round"],
+ correct:0
+},
+
+{
+ id:17,
+ world:"WORLD 02 // CSS BEGINNER",
+ title:"余白を作る",
+ subtitle:"marginとpadding",
+ learnTitle:"余白の違い",
+ learnText:"marginは要素の外側の余白、paddingは要素の内側の余白です。",
+ learnInfo:"箱を想像すると分かりやすいです。paddingは箱の中、marginは箱と箱の間の距離です。",
+ example:".card {\n  margin: 20px;\n  padding: 20px;\n}",
+ practice:"要素の外側と内側に余白を作ろう。",
+ task:"marginとpaddingを使ってください。",
+ required:["margin","padding"],
+ question:"要素の内側の余白は？",
+ answers:["padding","margin","inside-space","inner-margin"],
+ correct:0
+},
+
+{
+ id:18,
+ world:"WORLD 02 // CSS BEGINNER",
+ title:"サイズを指定する",
+ subtitle:"widthとheight",
+ learnTitle:"幅と高さ",
+ learnText:"widthで幅、heightで高さを指定します。px、%、vw、vhなどの単位を使います。",
+ learnInfo:"pxは固定サイズ、%は親要素に対する割合です。レスポンシブでは%などもよく使います。",
+ example:".box {\n  width: 300px;\n  height: 200px;\n}",
+ practice:"ボックスの幅と高さを指定しよう。",
+ task:"widthとheightを使ってください。",
+ required:["width","height"],
+ question:"要素の幅を指定するプロパティは？",
+ answers:["width","wide","size-x","horizontal"],
+ correct:0
+},
+
+{
+ id:19,
+ world:"WORLD 02 // CSS BEGINNER",
+ title:"classを使う",
+ subtitle:"同じデザインを再利用する",
+ learnTitle:"classセレクタ",
+ learnText:"classを使うと、複数の要素に同じCSSを適用できます。HTMLにclass属性を設定し、CSSではドットから始めます。",
+ learnInfo:"classは何度も使えます。idは基本的にページ内で一意のものに使います。",
+ example:".card {\n  padding: 20px;\n}\n\n<div class=\"card\">カード</div>",
+ practice:"classセレクタを使ってデザインしよう。",
+ task:".cardのようなclassセレクタを使ってください。",
+ required:[".","padding"],
+ question:"classセレクタは何から始める？",
+ answers:[".","@","#","$"],
+ correct:0
+},
+
+{
+ id:20,
+ world:"WORLD 02 // CSS BEGINNER",
+ title:"CSS BOSS",
+ subtitle:"CSS総合クエスト",
+ learnTitle:"CSSを組み合わせる",
+ learnText:"文字、色、背景、余白、枠線を組み合わせてカードをデザインします。",
+ learnInfo:"CSSは1つのプロパティだけでなく、複数のプロパティを組み合わせて使うのが基本です。",
+ example:".card {\n  padding: 20px;\n  color: white;\n  background: #101010;\n  border-radius: 12px;\n}",
+ practice:"カードUIをデザインしよう。",
+ task:"padding、color、background、border-radiusを使ってください。",
+ required:["padding","color","background","border-radius"],
+ question:"CSSは何を担当する？",
+ answers:["デザイン","HTMLの構造","データベース","サーバー"],
+ correct:0
+},
+
+/* =========================
+   LAYOUT WORLD
+========================= */
+
+{
+ id:21,
+ world:"WORLD 03 // CSS LAYOUT",
+ title:"display",
+ subtitle:"要素の表示方法",
+ learnTitle:"display",
+ learnText:"displayは要素の表示方法を指定します。block、inline、flex、gridなどがあります。",
+ learnInfo:"display:flexは、現代のWeb制作で非常によく使うレイアウト方法です。",
+ example:".container {\n  display: flex;\n}",
+ practice:"display:flexを使おう。",
+ task:"display:flexを指定してください。",
+ required:["display","flex"],
+ question:"Flexboxを使うには？",
+ answers:["display:flex","flex:display","layout:flexbox","position:flex"],
+ correct:0
+},
+
+{
+ id:22,
+ world:"WORLD 03 // CSS LAYOUT",
+ title:"Flexbox",
+ subtitle:"要素を横並びにする",
+ learnTitle:"Flexbox",
+ learnText:"Flexboxは要素を柔軟に並べるためのレイアウト機能です。",
+ learnInfo:"display:flexを親要素に指定すると、子要素を並べやすくなります。",
+ example:".container {\n  display: flex;\n  gap: 20px;\n}",
+ practice:"Flexboxで2つの要素を並べよう。",
+ task:"display:flexとgapを使ってください。",
+ required:["display","flex","gap"],
+ question:"Flexboxは主に何に使う？",
+ answers:["要素のレイアウト","文字の翻訳","画像の編集","音声再生"],
+ correct:0
+},
+
+{
+ id:23,
+ world:"WORLD 03 // CSS LAYOUT",
+ title:"justify-content",
+ subtitle:"横方向の配置",
+ learnTitle:"justify-content",
+ learnText:"justify-contentはFlexboxの主軸方向に子要素を配置します。",
+ learnInfo:"centerで中央、space-betweenで両端に配置するなど、様々な配置ができます。",
+ example:".container {\n  display: flex;\n  justify-content: center;\n}",
+ practice:"要素を中央に配置しよう。",
+ task:"display:flexとjustify-content:centerを使ってください。",
+ required:["display","flex","justify-content","center"],
+ question:"Flexboxの主軸方向の配置は？",
+ answers:["justify-content","align-content-only","main-position","flex-center"],
+ correct:0
+},
+
+{
+ id:24,
+ world:"WORLD 03 // CSS LAYOUT",
+ title:"align-items",
+ subtitle:"縦方向の配置",
+ learnTitle:"align-items",
+ learnText:"align-itemsはFlexboxの交差軸方向の配置を指定します。",
+ learnInfo:"justify-contentとalign-itemsを組み合わせると、要素を上下左右の中央に配置できます。",
+ example:".container {\n  display: flex;\n  align-items: center;\n}",
+ practice:"要素を縦方向の中央に配置しよう。",
+ task:"align-items:centerを使ってください。",
+ required:["align-items","center"],
+ question:"Flexboxの交差軸方向の配置は？",
+ answers:["align-items","justify-items","vertical-flex","cross-position"],
+ correct:0
+},
+
+{
+ id:25,
+ world:"WORLD 03 // CSS LAYOUT",
+ title:"flex-direction",
+ subtitle:"縦並びと横並び",
+ learnTitle:"flex-direction",
+ learnText:"flex-directionでFlexboxの方向を変更できます。rowは横、columnは縦です。",
+ learnInfo:"スマホ画面ではcolumnを使って縦に並べることもよくあります。",
+ example:".container {\n  display: flex;\n  flex-direction: column;\n}",
+ practice:"要素を縦方向に並べよう。",
+ task:"display:flexとflex-direction:columnを使ってください。",
+ required:["display","flex","flex-direction","column"],
+ question:"縦方向に並べる値は？",
+ answers:["column","vertical","down","stack"],
+ correct:0
+},
+
+{
+ id:26,
+ world:"WORLD 03 // CSS LAYOUT",
+ title:"CSS Grid",
+ subtitle:"格子状のレイアウト",
+ learnTitle:"Grid",
+ learnText:"CSS Gridは行と列を使ったレイアウトを作る機能です。",
+ learnInfo:"カード一覧やダッシュボードなど、2次元のレイアウトに向いています。",
+ example:".container {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n}",
+ practice:"Gridを使って3列のレイアウトを作ろう。",
+ task:"display:gridとgrid-template-columnsを使ってください。",
+ required:["display","grid","grid-template-columns"],
+ question:"Gridを使う指定は？",
+ answers:["display:grid","grid:display","layout:gridbox","columns:grid"],
+ correct:0
+},
+
+{
+ id:27,
+ world:"WORLD 03 // CSS LAYOUT",
+ title:"position",
+ subtitle:"要素を自由に配置する",
+ learnTitle:"position",
+ learnText:"positionは要素の配置方法を変更します。relative、absolute、fixedなどがあります。",
+ learnInfo:"absoluteは基準となる親要素を使って配置し、fixedは画面に固定できます。",
+ example:".badge {\n  position: absolute;\n  top: 10px;\n  right: 10px;\n}",
+ practice:"要素をabsoluteで配置しよう。",
+ task:"position:absoluteを使ってください。",
+ required:["position","absolute"],
+ question:"画面に固定するpositionの値は？",
+ answers:["fixed","screen","sticky-only","lock"],
+ correct:0
+},
+
+{
+ id:28,
+ world:"WORLD 03 // CSS LAYOUT",
+ title:"レスポンシブ",
+ subtitle:"画面サイズに対応する",
+ learnTitle:"レスポンシブデザイン",
+ learnText:"レスポンシブデザインは、PCやスマートフォンなど異なる画面サイズに対応する考え方です。",
+ learnInfo:"CSSの@mediaを使うと、画面幅に応じてデザインを変更できます。",
+ example:"@media (max-width: 600px) {\n  .container {\n    display: block;\n  }\n}",
+ practice:"メディアクエリを作ろう。",
+ task:"@mediaとmax-widthを使ってください。",
+ required:["@media","max-width"],
+ question:"画面幅に応じてCSSを変える仕組みは？",
+ answers:["メディアクエリ","HTMLタグ","画像圧縮","JavaScript関数"],
+ correct:0
+},
+
+{
+ id:29,
+ world:"WORLD 03 // CSS LAYOUT",
+ title:"スマホ対応",
+ subtitle:"モバイルファースト",
+ learnTitle:"スマホで見やすくする",
+ learnText:"スマートフォンでは画面幅が狭いため、横並びの要素を縦並びにしたり、文字サイズを調整したりします。",
+ learnInfo:"実際のWebサイトでは、スマホでの見やすさは非常に重要です。",
+ example:"@media (max-width:600px) {\n  .cards {\n    flex-direction: column;\n  }\n}",
+ practice:"スマホ画面で縦並びになるCSSを作ろう。",
+ task:"@media、flex-direction、columnを使ってください。",
+ required:["@media","flex-direction","column"],
+ question:"スマホ対応で重要なのは？",
+ answers:["画面幅に合わせたレイアウト","PCだけのデザイン","画像を消すこと","HTMLを使わないこと"],
+ correct:0
+},
+
+{
+ id:30,
+ world:"WORLD 03 // CSS LAYOUT",
+ title:"LAYOUT BOSS",
+ subtitle:"レイアウト総合",
+ learnTitle:"レイアウトを完成させる",
+ learnText:"Flexbox、Grid、レスポンシブを組み合わせて実践的なレイアウトを作ります。",
+ learnInfo:"レイアウトはCSS学習の大きな山場です。まず親要素のレイアウトを考えることが重要です。",
+ example:".cards {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n  gap: 20px;\n}",
+ practice:"Gridとgapを使ってカードレイアウトを作ろう。",
+ task:"display:grid、grid-template-columns、gapを使ってください。",
+ required:["display","grid","grid-template-columns","gap"],
+ question:"複数の列を持つレイアウトに向くのは？",
+ answers:["CSS Grid","strong","alt","br"],
+ correct:0
+},
+
+/* =========================
+   PROJECT WORLD
+========================= */
+
+{
+ id:31,
+ world:"WORLD 04 // PRACTICAL PROJECT",
+ title:"プロフィールカード",
+ subtitle:"HTMLとCSSでカードを作る",
+ learnTitle:"プロフィールカード",
+ learnText:"ここからは学んだHTMLとCSSを組み合わせて、実際のUIを制作します。",
+ learnInfo:"実際のWeb制作では、HTMLで内容を作りCSSで見た目を整えます。",
+ example:"<div class=\"card\">\n  <h2>SIGURE</h2>\n  <p>Web Developer</p>\n</div>",
+ practice:"プロフィールカードを作ろう。",
+ task:"card、h2、pを作り、CSSでpaddingを設定してください。",
+ required:["card","<h2>","<p>","padding"],
+ question:"UI制作でHTMLとCSSの役割は？",
+ answers:["構造とデザイン","どちらも画像編集","どちらもデータベース","どちらも音声"],
+ correct:0
+},
+
+{
+ id:32,
+ world:"WORLD 04 // PRACTICAL PROJECT",
+ title:"ナビゲーション",
+ subtitle:"サイトの道を作る",
+ learnTitle:"ナビゲーション",
+ learnText:"ナビゲーションはWebサイト内のページを移動するためのUIです。",
+ learnInfo:"headerとaタグ、Flexboxを組み合わせると基本的なナビゲーションを作れます。",
+ example:"<nav>\n  <a href=\"#home\">Home</a>\n  <a href=\"#about\">About</a>\n</nav>",
+ practice:"navとaタグを使ってナビゲーションを作ろう。",
+ task:"nav、a、display:flexを使ってください。",
+ required:["<nav>","<a","display","flex"],
+ question:"ページ移動に使うHTML要素は？",
+ answers:["a","img","table","input"],
+ correct:0
+},
+
+{
+ id:33,
+ world:"WORLD 04 // PRACTICAL PROJECT",
+ title:"ログイン画面",
+ subtitle:"フォームUIを作る",
+ learnTitle:"ログイン画面",
+ learnText:"input、label、buttonとCSSを組み合わせてログインUIを作ります。",
+ learnInfo:"フォームはWebサービスで非常によく使われるUIです。",
+ example:'<label>メールアドレス</label>\n<input type="email">\n<button>ログイン</button>',
+ practice:"inputとbuttonを使ってログインフォームを作ろう。",
+ task:"input、button、paddingを使ってください。",
+ required:["<input","<button>","padding"],
+ question:"ログイン画面で入力欄に使う要素は？",
+ answers:["input","section","footer","strong"],
+ correct:0
+},
+
+{
+ id:34,
+ world:"WORLD 04 // PRACTICAL PROJECT",
+ title:"商品カード",
+ subtitle:"カードUIを設計する",
+ learnTitle:"商品カード",
+ learnText:"画像、商品名、説明、価格、ボタンを組み合わせて商品カードを作ります。",
+ learnInfo:"カードUIはECサイトやダッシュボードなど様々な場所で使われます。",
+ example:"<div class=\"product-card\">\n  <h2>商品名</h2>\n  <p>説明</p>\n  <button>購入</button>\n</div>",
+ practice:"商品カードを作ろう。",
+ task:"class、h2、p、buttonを使ってください。",
+ required:["class","<h2>","<p>","<button>"],
+ question:"カードを複数並べるときに使えるCSSは？",
+ answers:["display:flex","font-sizeだけ","alt","href"],
+ correct:0
+},
+
+{
+ id:35,
+ world:"WORLD 04 // PRACTICAL PROJECT",
+ title:"料金表",
+ subtitle:"比較できるUIを作る",
+ learnTitle:"料金表",
+ learnText:"料金表では複数のプランをカードとして並べ、内容を比較しやすくします。",
+ learnInfo:"GridやFlexboxを使うと料金プランを横並びにできます。",
+ example:".plans {\n  display: flex;\n  gap: 20px;\n}",
+ practice:"3つの料金プランを作ろう。",
+ task:"3つのカードとdisplay:flexを使ってください。",
+ required:["display","flex","card"],
+ question:"複数のプランを並べるには？",
+ answers:["FlexboxやGrid","imgだけ","brだけ","titleだけ"],
+ correct:0
+},
+
+{
+ id:36,
+ world:"WORLD 04 // PRACTICAL PROJECT",
+ title:"ダッシュボード",
+ subtitle:"情報を整理する",
+ learnTitle:"ダッシュボードUI",
+ learnText:"ダッシュボードは複数の情報をカードやグリッドで整理して表示します。",
+ learnInfo:"Gridを使うと、複数の情報カードを効率よく配置できます。",
+ example:".dashboard {\n  display: grid;\n  grid-template-columns: repeat(3,1fr);\n  gap: 20px;\n}",
+ practice:"Gridを使ってダッシュボードの骨格を作ろう。",
+ task:"display:grid、grid-template-columns、gapを使ってください。",
+ required:["display","grid","grid-template-columns","gap"],
+ question:"情報を整理するレイアウトに向くものは？",
+ answers:["Grid","alt","strong","href"],
+ correct:0
+},
+
+{
+ id:37,
+ world:"WORLD 04 // PRACTICAL PROJECT",
+ title:"ゲームUI",
+ subtitle:"世界観をデザインする",
+ learnTitle:"ゲームUI",
+ learnText:"ゲームUIでは、色、余白、カード、ボタンなどを組み合わせて世界観を作ります。",
+ learnInfo:"デザインは単に派手にするだけでなく、情報の優先順位を考えることが重要です。",
+ example:".game-ui {\n  background: #050807;\n  color: #00ff8c;\n  padding: 30px;\n}",
+ practice:"ゲームUI風のカードを作ろう。",
+ task:"background、color、paddingを使ってください。",
+ required:["background","color","padding"],
+ question:"UIデザインで重要なのは？",
+ answers:["情報を分かりやすく整理する","全部を同じ大きさにする","文字を消す","色を使わない"],
+ correct:0
+},
+
+{
+ id:38,
+ world:"WORLD 04 // PRACTICAL PROJECT",
+ title:"ポートフォリオ",
+ subtitle:"自分の作品を見せる",
+ learnTitle:"ポートフォリオサイト",
+ learnText:"ポートフォリオは、自分のスキルや制作物を紹介するWebサイトです。",
+ learnInfo:"HTMLとCSSを使って、自分のプロフィール、作品、連絡先などを構成します。",
+ example:"<h1>My Portfolio</h1>\n<section>\n  <h2>Works</h2>\n</section>",
+ practice:"h1とsectionを使ってポートフォリオの骨格を作ろう。",
+ task:"h1、section、h2、CSSを使ってください。",
+ required:["<h1>","<section>","<h2>","color"],
+ question:"ポートフォリオの目的は？",
+ answers:["自分のスキルや作品を紹介する","画像を保存するだけ","ゲームを起動する","HTMLを削除する"],
+ correct:0
+},
+
+{
+ id:39,
+ world:"WORLD 04 // PRACTICAL PROJECT",
+ title:"模写制作",
+ subtitle:"既存サイトを観察する",
+ learnTitle:"Webサイトを観察する",
+ learnText:"Web制作では、既存サイトを観察して構造やレイアウトを分析することも重要です。",
+ learnInfo:"ただ見た目を真似するのではなく、どの要素がHTMLで、どのCSSでデザインされているかを考えます。",
+ example:"header → nav → main → section → footer",
+ practice:"ページ構造をHTMLタグで再現しよう。",
+ task:"header、main、section、footerを使ってください。",
+ required:["<header>","<main>","<section>","<footer>"],
+ question:"模写で重要なのは？",
+ answers:["構造とデザインを観察する","コードを意味なくコピーする","HTMLを使わない","CSSを使わない"],
+ correct:0
+},
+
+{
+ id:40,
+ world:"WORLD 04 // PRACTICAL PROJECT",
+ title:"FINAL BOSS",
+ subtitle:"SIGURE QUEST最終試験",
+ learnTitle:"Webサイトを完成させる",
+ learnText:"ここまで学んだHTMLとCSSの知識を組み合わせて、自分だけのWebページを作ります。",
+ learnInfo:"完璧に暗記する必要はありません。分からないことを調べながら作れることもWeb制作の重要なスキルです。",
+ example:"HTMLで構造を作る\nCSSでデザインする\n実際にブラウザで確認する",
+ practice:"自分だけのWebページを作ってみよう。",
+ task:"HTML要素とCSSプロパティを組み合わせて作品を作ってください。",
+ required:["<h1>","<p>","color","background"],
+ question:"Web制作で最も重要なことは？",
+ answers:["学びながら実際に作ること","すべてを一度で暗記すること","コードを書かないこと","CSSを使わないこと"],
+ correct:0
+}
+
+];
+
+
+let player = JSON.parse(
+  localStorage.getItem("sigureQuestPlayer")
+) || {
+  xp:0,
+  completed:[]
+};
+
+
+let currentQuest = null;
+let practicePassed = false;
+let testPassed = false;
+
+
+function save(){
+
+  localStorage.setItem(
+    "sigureQuestPlayer",
+    JSON.stringify(player)
+  );
+
+}
+
+
+function showScreen(id){
+
+  document
+    .querySelectorAll(".screen")
+    .forEach(screen=>{
+      screen.classList.remove("active");
+    });
+
+  document
+    .getElementById(id)
+    .classList.add("active");
+
+}
+
+
+function goHome(){
+
+  showScreen("home");
+  updateUI();
+
+}
+
+
+function showMap(){
+
+  showScreen("map");
+  renderQuests();
+
+}
+
+
+function updateUI(){
+
+  const level =
+    Math.floor(player.xp / 100) + 1;
+
+  const currentXP =
+    player.xp % 100;
+
+  document
+    .getElementById("level")
+    .textContent = level;
+
+  document
+    .getElementById("xpText")
+    .textContent =
+    `${currentXP} / 100 XP`;
+
+  document
+    .getElementById("xpFill")
+    .style.width =
+    currentXP + "%";
+
+
+  const html =
+    player.completed.filter(id=>id<=10).length;
+
+  const css =
+    player.completed.filter(id=>id>=11 && id<=20).length;
+
+  document
+    .getElementById("htmlProgress")
+    .style.width =
+    (html / 10 * 100) + "%";
+
+  document
+    .getElementById("htmlPercent")
+    .textContent =
+    Math.round(html / 10 * 100) + "%";
+
+  document
+    .getElementById("cssProgress")
+    .style.width =
+    (css / 10 * 100) + "%";
+
+  document
+    .getElementById("cssPercent")
+    .textContent =
+    Math.round(css / 10 * 100) + "%";
+
+}
+
+
+function renderQuests(){
+
+  renderWorld(
+    "htmlQuests",
+    quests.filter(q=>q.id>=1 && q.id<=10)
+  );
+
+  renderWorld(
+    "cssQuests",
+    quests.filter(q=>q.id>=11 && q.id<=20)
+  );
+
+  renderWorld(
+    "layoutQuests",
+    quests.filter(q=>q.id>=21 && q.id<=30)
+  );
+
+  renderWorld(
+    "projectQuests",
+    quests.filter(q=>q.id>=31 && q.id<=40)
+  );
+
+}
+
+
+function renderWorld(elementId, worldQuests){
+
+  const container =
+    document.getElementById(elementId);
+
+  container.innerHTML = "";
+
+  worldQuests.forEach((quest,index)=>{
+
+    const completed =
+      player.completed.includes(quest.id);
+
+    const previous =
+      quest.id === 1 ||
+      player.completed.includes(quest.id - 1);
+
+    const button =
+      document.createElement("button");
+
+    button.className = "quest";
+
+    button.disabled =
+      !previous && !completed;
+
+    let status = "🔒";
+
+    if(completed){
+
+      status = "✓ CLEAR";
+
+    }else if(previous){
+
+      status = "START";
+
+    }
+
+    button.innerHTML = `
+
+      <span class="quest-number">
+        ${String(quest.id).padStart(2,"0")}
+      </span>
+
+      <span class="quest-info">
+
+        <strong>
+          ${quest.title}
+        </strong>
+
+        <small>
+          ${quest.subtitle}
+        </small>
+
+      </span>
+
+      <span class="quest-status">
+        ${status}
+      </span>
+
+    `;
+
+    button.onclick = ()=>{
+      openQuest(quest.id);
+    };
+
+    container.appendChild(button);
+
+  });
+
+}
+
+
+function openQuest(id){
+
+  currentQuest =
+    quests.find(q=>q.id === id);
+
+  practicePassed = false;
+  testPassed = false;
+
+  showScreen("lesson");
+
+  document
+    .getElementById("lessonWorld")
+    .textContent =
+    currentQuest.world;
+
+  document
+    .getElementById("lessonTitle")
+    .textContent =
+    currentQuest.title;
+
+  document
+    .getElementById("lessonSubtitle")
+    .textContent =
+    currentQuest.subtitle;
+
+  document
+    .getElementById("learnTitle")
+    .textContent =
+    currentQuest.learnTitle;
+
+  document
+    .getElementById("learnText")
+    .textContent =
+    currentQuest.learnText;
+
+  document
+    .getElementById("learnInfo")
+    .textContent =
+    currentQuest.learnInfo;
+
+  document
+    .getElementById("exampleCode")
+    .textContent =
+    currentQuest.example;
+
+  document
+    .getElementById("practiceText")
+    .textContent =
+    currentQuest.practice;
+
+  document
+    .getElementById("taskText")
+    .textContent =
+    currentQuest.task;
+
+  document
+    .getElementById("editor")
+    .value =
+    currentQuest.example;
+
+  document
+    .getElementById("checkResult")
+    .textContent = "";
+
+  document
+    .getElementById("testResult")
+    .textContent = "";
+
+  document
+    .getElementById("completeBtn")
+    .style.display =
+    "none";
+
+  updatePreview();
+
+  renderQuestion();
+
+  showStep("learn");
+
+}
+
+
+function showStep(step){
+
+  const panels = {
+    learn:"learnPanel",
+    practice:"practicePanel",
+    test:"testPanel"
+  };
+
+  document
+    .querySelectorAll(".lesson-panel")
+    .forEach(panel=>{
+      panel.classList.remove("active");
+    });
+
+  document
+    .getElementById(panels[step])
+    .classList.add("active");
+
+  const index = {
+    learn:0,
+    practice:1,
+    test:2
+  }[step];
+
+  document
+    .querySelectorAll(".step")
+    .forEach((button,i)=>{
+      button.classList.toggle(
+        "active",
+        i === index
+      );
+    });
+
+}
+
+
+function updatePreview(){
+
+  const code =
+    document
+    .getElementById("editor")
+    .value;
+
+  document
+    .getElementById("preview")
+    .innerHTML =
+    code;
+
+}
+
+
+function checkPractice(){
+
+  const code =
+    document
+    .getElementById("editor")
+    .value
+    .toLowerCase();
+
+  const missing =
+    currentQuest.required.filter(
+      item =>
+        !code.includes(
+          item.toLowerCase()
+        )
+    );
+
+  const result =
+    document
+    .getElementById("checkResult");
+
+  if(missing.length === 0){
+
+    practicePassed = true;
+
+    result.className =
+      "check-result success";
+
+    result.textContent =
+      "✓ PRACTICE CLEAR！必要なコードが確認できました。";
+
+  }else{
+
+    practicePassed = false;
+
+    result.className =
+      "check-result error";
+
+    result.textContent =
+      "✕ まだ足りない要素があります："
+      + missing.join("、");
+
+  }
+
+}
+
+
+function renderQuestion(){
+
+  document
+    .getElementById("question")
+    .textContent =
+    currentQuest.question;
+
+  const container =
+    document
+    .getElementById("answers");
+
+  container.innerHTML = "";
+
+  currentQuest.answers.forEach(
+    (answer,index)=>{
+
+      const button =
+        document.createElement("button");
+
+      button.className =
+        "answer";
+
+      button.textContent =
+        answer;
+
+      button.onclick =
+        ()=>answerQuestion(
+          button,
+          index
+        );
+
+      container.appendChild(button);
+
+    }
+  );
+
+}
+
+
+function answerQuestion(button,index){
+
+  const result =
+    document
+    .getElementById("testResult");
+
+  document
+    .querySelectorAll(".answer")
+    .forEach(
+      answer=>{
+        answer.disabled = true;
+      }
+    );
+
+  if(index === currentQuest.correct){
+
+    button.classList.add("correct");
+
+    testPassed = true;
+
+    result.className =
+      "test-result success";
+
+    result.textContent =
+      "✓ 正解！素晴らしい。";
+
+    document
+      .getElementById("completeBtn")
+      .style.display =
+      "inline-block";
+
+  }else{
+
+    button.classList.add("wrong");
+
+    testPassed = false;
+
+    result.className =
+      "test-result error";
+
+    result.textContent =
+      "✕ 不正解。もう一度学習内容を確認してみよう。";
+
+    setTimeout(()=>{
+
+      document
+        .querySelectorAll(".answer")
+        .forEach(
+          answer=>{
+            answer.disabled = false;
+          }
+        );
+
+    },800);
+
+  }
+
+}
+
+
+function completeCurrentQuest(){
+
+  if(!practicePassed){
+
+    alert(
+      "先に実践課題をチェックして、PRACTICE CLEARにしよう！"
+    );
+
+    showStep("practice");
+
+    return;
+
+  }
+
+  if(!testPassed){
+
+    return;
+
+  }
+
+  if(
+    !player.completed.includes(
+      currentQuest.id
+    )
+  ){
+
+    player.completed.push(
+      currentQuest.id
+    );
+
+    player.xp += 100;
+
+    save();
+
+  }
+
+  document
+    .getElementById("completeMessage")
+    .textContent =
+    `${currentQuest.title}をクリアしました。次のクエストが解放されました。`;
+
+  document
+    .getElementById("modal")
+    .classList
+    .add("active");
+
+  updateUI();
+
+}
+
+
+function closeModal(){
+
+  document
+    .getElementById("modal")
+    .classList
+    .remove("active");
+
+  showMap();
+
+}
+
+
+updateUI();
+
+renderQuests();
+
+</script>
+
+</div>
+
+</body>
+</html>
